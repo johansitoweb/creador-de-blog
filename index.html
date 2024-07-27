@@ -1,0 +1,164 @@
+\<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Johansitoweb</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        #searchInput {
+            width: 300px; /* Ajusta el tamaño del buscador */
+            margin-left: 20px; /* Espacio entre el título y el buscador */
+        }
+        ion-title {
+            color: white; /* Cambia el color del título a blanco */
+        }
+    </style>
+</head>
+<body>
+    <ion-app class="cs">
+        <ion-header>
+            <ion-toolbar>
+                <ion-title class="text-white">Johansitoweb</ion-title>
+                <input type="text" id="searchInput" placeholder="Buscar por título" onkeyup="filtrarEntradas()">
+                <ion-buttons slot="end">
+                    <ion-button onclick="borrarBlog()">Borrar Todo</ion-button>
+                </ion-buttons>
+            </ion-toolbar>
+        </ion-header>
+        <ion-content>
+            <div class="row">
+                <div class="col-sm-7">
+                    <div id="blogEntries"></div> <!-- Aquí se mostrarán las entradas del blog -->
+                </div>
+                <div class="col-sm-4">
+                    <ion-card>
+                        <h3>Contenido adicional</h3>
+                        <p>Este es un espacio para contenido adicional.</p><br>
+                        <ion-card>
+                            <h3>Contenido adicional</h3>
+                            <p>Este es un espacio para contenido adicional.</p><br>
+                            <ion-card>
+                                <h3>Contenido adicional</h3>
+                                <p>Este es un espacio para contenido adicional.</p><br>
+                                <ion-card>
+                                    <h3>Contenido adicional</h3>
+                                    <p>Este es un espacio para contenido adicional.</p><br>
+                                    <ion-card>
+                                        <h3>Contenido adicional</h3>
+                                        <p>Este es un espacio para contenido adicional.</p><br>
+                                        <ion-card>
+                                            <h3>Contenido adicional</h3>
+                                            <p>Este es un espacio para contenido adicional.</p><br>
+                                            <ion-card>
+                                                <h3>Contenido adicional</h3>
+                                                <p>Este es un espacio para contenido adicional.</p><br>
+                    </ion-card>
+                </div>
+            </div>
+        </ion-content>
+    </ion-app>
+
+    <script>
+        function mostrarEntradas() {
+            const entradas = JSON.parse(localStorage.getItem('entradas')) || [];
+            const blogEntries = document.getElementById('blogEntries');
+            blogEntries.innerHTML = '';
+
+            entradas.forEach((entrada, index) => {
+                const div = document.createElement('div');
+                div.className = 'entry';
+                div.innerHTML = `
+                    <ion-card>
+                        <ion-card-header>
+                            <ion-card-title style="color: ${entrada.textColor}">${entrada.titulo}</ion-card-title>
+                        </ion-card-header>
+                        <ion-card-content>
+                            <p>${entrada.contenido}</p>
+                            ${entrada.link ? `<a href="${entrada.link}" target="_blank">Leer más</a>` : ''}
+                            ${entrada.image ? `<img src="${entrada.image}" alt="Imagen de entrada">` : ''}
+                            <div>
+                                <button onclick="meGusta(${index})">👍 Me gusta <span id="likeCount-${index}">0</span></button>
+                                <button onclick="noMeGusta(${index})">👎 No me gusta <span id="dislikeCount-${index}">0</span></button>
+                            </div>
+                        </ion-card-content>
+                    </ion-card>
+                    <hr>
+                `;
+                blogEntries.appendChild(div);
+            });
+        }
+
+        function filtrarEntradas() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const entries = document.querySelectorAll('.entry');
+
+            entries.forEach(entry => {
+                const title = entry.querySelector('ion-card-title').textContent.toLowerCase();
+                if (title.includes(filter)) {
+                    entry.style.display = '';
+                } else {
+                    entry.style.display = 'none';
+                }
+            });
+        }
+
+        function guardarEntrada() {
+            const titulo = document.getElementById('blogTitle').value;
+            const contenido = document.getElementById('blogContent').value;
+            const link = document.getElementById('blogLink').value;
+            const imageFile = document.getElementById('blogImage').files[0];
+            const textColor = document.getElementById('textColor').value;
+
+            if (titulo && contenido) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const entrada = { titulo, contenido, link, image: event.target.result, textColor };
+                    const entradas = JSON.parse(localStorage.getItem('entradas')) || [];
+                    entradas.push(entrada);
+                    localStorage.setItem('entradas', JSON.stringify(entradas)); // Guardar en localStorage
+                    mostrarEntradas(); // Refresca la lista de entradas
+                    alert('Entrada guardada con éxito.');
+                };
+                if (imageFile) {
+                    reader.readAsDataURL(imageFile);
+                } else {
+                    const entrada = { titulo, contenido, link, image: null, textColor };
+                    const entradas = JSON.parse(localStorage.getItem('entradas')) || [];
+                    entradas.push(entrada);
+                    localStorage.setItem('entradas', JSON.stringify(entradas)); // Guardar en localStorage
+                    mostrarEntradas(); // Refresca la lista de entradas
+                    alert('Entrada guardada con éxito.');
+                }
+            }
+        }
+
+        function meGusta(index) {
+            const likeCountElement = document.getElementById(`likeCount-${index}`);
+            let likeCount = parseInt(likeCountElement.textContent);
+            likeCountElement.textContent = likeCount + 1;
+        }
+
+        function noMeGusta(index) {
+            const dislikeCountElement = document.getElementById(`dislikeCount-${index}`);
+            let dislikeCount = parseInt(dislikeCountElement.textContent);
+            dislikeCountElement.textContent = dislikeCount + 1;
+        }
+
+        function borrarBlog() {
+            localStorage.removeItem('entradas'); // Borra todas las entradas del blog
+            mostrarEntradas(); // Refresca la lista de entradas
+            alert('Todas las entradas han sido borradas.');
+        }
+
+        mostrarEntradas(); // Llama a la función al cargar
+    </script>
+</body>
+</html>

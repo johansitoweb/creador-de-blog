@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Mejorado</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        textarea { width: 100%; height: 100px; }
+        .entry { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .entry img { max-width: 100%; height: auto; }
+        .entry a { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Escribe tu entrada de blog</h1>
+    <input type="text" id="blogTitle" placeholder="Título de la entrada">
+    <textarea id="blogContent" placeholder="Escribe aquí tu blog..."></textarea>
+    <input type="text" id="blogLink" placeholder="Agrega un enlace (opcional)">
+    <input type="file" id="blogImage" accept="image/*">
+    <input type="color" id="textColor" value="#000000">
+    <button onclick="guardarEntrada()">Guardar</button>
+    <button onclick="verEntradas()">Ver Entradas</button>
+
+    <script>
+        function guardarEntrada() {
+            const titulo = document.getElementById('blogTitle').value;
+            const contenido = document.getElementById('blogContent').value;
+            const link = document.getElementById('blogLink').value;
+            const imageFile = document.getElementById('blogImage').files[0];
+            const textColor = document.getElementById('textColor').value;
+
+            if (titulo && contenido) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const entrada = { titulo, contenido, link, image: event.target.result, textColor };
+                    const entradas = JSON.parse(localStorage.getItem('entradas')) || [];
+                    entradas.push(entrada);
+                    localStorage.setItem('entradas', JSON.stringify(entradas)); // Guardar en localStorage
+                    alert('Entrada guardada con éxito.');
+                };
+                if (imageFile) {
+                    reader.readAsDataURL(imageFile);
+                } else {
+                    const entrada = { titulo, contenido, link, image: null, textColor };
+                    const entradas = JSON.parse(localStorage.getItem('entradas')) || [];
+                    entradas.push(entrada);
+                    localStorage.setItem('entradas', JSON.stringify(entradas)); // Guardar en localStorage
+                    alert('Entrada guardada con éxito.');
+                }
+            } else {
+                alert('Por favor, completa el título y el contenido.');
+            }
+        }
+
+        function verEntradas() {
+            window.location.href = 'index.html'; // Redirige a la página de entradas
+        }
+    </script>
+</body>
+</html>
